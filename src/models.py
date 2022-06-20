@@ -8,26 +8,61 @@ from eralchemy import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
+class Characters(Base):
+    __tablename__ = 'characters'
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    name = Column(String(80), unique=True, nullable=False)
+    eye_color = Column(String(120), nullable=False)
+    hair_color = Column(String(120), nullable=False)
+    planets_id = Column(Integer, ForeignKey('planets.id'),
+        nullable=False)
+    ships_id = Column(Integer, ForeignKey('ships.id'),
+        nullable=False)    
+    favoritos = relationship('fav', backref='characters', lazy=True)
 
-class Address(Base):
-    __tablename__ = 'address'
+
+class Users(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(80), unique=True, nullable=False)
+    email = Column(String(120), unique=True, nullable=False)
+
+
+class Ships(Base):
+    __tablename__ = 'ships'
     # Here we define columns for the table address.
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    name = Column(String(80), unique=True, nullable=False)
+    model = Column(String(80), nullable=False)
+    planets_id = Column(Integer, ForeignKey('planets.id'),
+        nullable=False)    
+    
+
+
+
+class Planets(Base):
+    __tablename__ = 'planets'
+    # Here we define columns for the table address.
+    # Notice that each column is also a normal Python instance attribute.
+    id = Column(Integer, primary_key=True)
+    name = Column(String(80), unique=True, nullable=False)
+    population = Column(Integer, nullable=False)    
+    characters = relationship('characters', backref='planets', lazy=True)
+    ships = relationship('ships', backref='planets', lazy=True)
+
+
+
+class Favoritos(Base):
+    __tablename__ = 'favoritos'
+    id = Column(Integer, primary_key=True)
+    users_id = Column(Integer, ForeignKey('users.id'),
+        nullable=False)
 
     def to_dict(self):
         return {}
+
+
 
 ## Draw from SQLAlchemy base
 render_er(Base, 'diagram.png')
